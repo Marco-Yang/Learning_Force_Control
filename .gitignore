@@ -3,3 +3,5 @@ tmp
 *.pyc
 *.egg-info
 *.mp4
+
+*.log
