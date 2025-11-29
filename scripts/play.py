@@ -22,7 +22,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from isaacgym.torch_utils import *
 
-from eval_utils import *
+from utils import load_env, load_policy
 from typing import Tuple, List, Optional
 
 sys.path.append('../')
@@ -30,9 +30,9 @@ sys.path.append('../')
 ########################################
 ############# PARAMETERS ###############
 ########################################
-RUN_PATH = "robot-locomotion/b1-loco-z1-manip/runs/voq40aun" 
+RUN_PATH = None  # 设置为None时不从WandB加载
 
-WEIGHTS_PATH = './eval_model'
+WEIGHTS_PATH = 'wandb/latest-run/files/tmp/legged_data/ac_weights_1600.pt'
 NUM_ENVS = 9 #343                                                   # The number of environments define how many velocity commands are evaluated (1 command/env)
 NUM_EVAL_STEPS = 2000                                             # Only 1/3 of it is used to compute the error magnitude 
 TRANSIENT_LOWER_CLIP = 50
@@ -68,7 +68,7 @@ def play(headless: bool = False):
     # Load simulation environment and policy (action = policy(obs_hist))
     env, policy = load_env(run_path = RUN_PATH,
                            weights_path = WEIGHTS_PATH,
-                           sim_device = 'cuda:2', 
+                           sim_device = 'cuda:0', 
                            num_envs = NUM_ENVS, 
                            headless = headless)
     
@@ -105,8 +105,8 @@ def play(headless: bool = False):
 
         # tile the images in 4xn grid
         tiled_image = np.concatenate(camera_images, axis=0)
-        tiled_torque_plot = np.concatenate(torque_plots, axis=0)
-        tiled_image = np.concatenate([tiled_image, tiled_torque_plot], axis=1)
+        # tiled_torque_plot = np.concatenate(torque_plots, axis=0)
+        # tiled_image = np.concatenate([tiled_image, tiled_torque_plot], axis=1)
 
 
         mp4_writer.append_data(tiled_image)
@@ -117,4 +117,4 @@ def play(headless: bool = False):
 
 if __name__ == '__main__':
     # to see the environment rendering, set headless=False
-    overall_eval(headless = False)
+    play(headless = False)
